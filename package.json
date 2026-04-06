@@ -1,0 +1,11 @@
+{
+  "name": "keyword-proxy",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "axios": "^1.7.0"
+  }
+}
