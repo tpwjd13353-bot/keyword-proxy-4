@@ -15,6 +15,15 @@ app.get("/", (req, res) => {
   res.json({ status: "ok", service: "keyword-proxy" });
 });
 
+// 검색 결과에서 실제 업체명만 필터 (지역명/검색어 자체 제외)
+function filterPlaceNames(names, keyword) {
+  return names.filter((n) => {
+    if (n.length <= 2) return false;
+    if (n === keyword || n.replace(/\s/g, "") === keyword.replace(/\s/g, "")) return false;
+    return true;
+  });
+}
+
 // 키워드 순위 체크
 app.post("/check", async (req, res) => {
   const { keyword, targetName } = req.body;
@@ -29,12 +38,13 @@ app.post("/check", async (req, res) => {
       { headers: HEADERS, timeout: 10000 }
     );
 
-    const names = [];
+    const rawNames = [];
     const matches = r.data.matchAll(/"name":"([^"]+)"/g);
     for (const m of matches) {
-      names.push(m[1].replace(/<[^>]+>/g, ""));
-      if (names.length >= 5) break;
+      rawNames.push(m[1].replace(/<[^>]+>/g, ""));
+      if (rawNames.length >= 10) break;
     }
+    const names = filterPlaceNames(rawNames, keyword).slice(0, 5);
 
     let rank = null;
     for (let i = 0; i < names.length; i++) {
